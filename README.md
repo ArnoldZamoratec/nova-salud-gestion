@@ -85,7 +85,7 @@ git clone https://github.com/ArnoldZamoratec/nova-salud-gestion-botica.git
 Ingresar al directorio:
 
 ```bash
-cd nova-salud-gestion-botica
+cd nova-salud-gestion
 ```
 
 ### 2. Iniciar MySQL
