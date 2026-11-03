@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { soles, errMsg } from '../api';
 import { Alert, ProductoImg, tintaCategoria } from '../components/ui.jsx';
+import { MAX } from '../limites.js';
 
 export default function Catalogo() {
   const [productos, setProductos] = useState([]);
@@ -47,7 +48,7 @@ export default function Catalogo() {
           <p className="hero-lead">Consulta precios y disponibilidad, y acércate a la botica por tus productos.</p>
           <form className="hero-search" role="search" onSubmit={verProductos}>
             <label htmlFor="buscar" className="sr-only">Buscar productos</label>
-            <input id="buscar" type="search" placeholder="Paracetamol, vitamina C, alcohol" value={q} onChange={(e) => setQ(e.target.value)} />
+            <input id="buscar" type="search" maxLength={MAX.busqueda} placeholder="Paracetamol, vitamina C, alcohol" value={q} onChange={(e) => setQ(e.target.value)} />
             <button className="btn btn-primary">Buscar</button>
           </form>
         </div>

@@ -2,6 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { pool } from '../config/db.js';
 import { HttpError } from '../middleware/errorHandler.js';
+import { MAX, texto } from '../validar.js';
 
 export async function login(req, res) {
   const { email, password } = req.body || {};
@@ -29,6 +30,9 @@ export async function listarUsuarios(req, res) {
 export async function crearUsuario(req, res) {
   const { nombre, email, password, rol = 'farmaceutico' } = req.body || {};
   if (!nombre || !email || !password) throw new HttpError(400, 'Nombre, email y contraseña son obligatorios');
+  texto(nombre, MAX.usuarioNombre, 'Nombre');
+  texto(email, MAX.email, 'Email');
+  if (String(password).length > MAX.password) throw new HttpError(400, `Contraseña: máximo ${MAX.password} caracteres`);
   if (password.length < 8) throw new HttpError(400, 'La contraseña debe tener al menos 8 caracteres');
   if (!['admin', 'farmaceutico'].includes(rol)) throw new HttpError(400, 'Rol inválido');
   const hash = await bcrypt.hash(password, 10);

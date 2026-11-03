@@ -1,6 +1,7 @@
 import { pool, withTransaction } from '../config/db.js';
 import { HttpError } from '../middleware/errorHandler.js';
 import { emitirCambioStock } from '../socket.js';
+import { MAX, texto } from '../validar.js';
 import { unidadesVencidas, descontarLotes, devolverLotes, sincronizarVencimiento, textoLotes } from '../lotes.js';
 
 const IGV = 0.18;
@@ -143,7 +144,7 @@ export async function listar(req, res) {
 
 /** Anula una venta y devuelve el stock (solo administrador). */
 export async function anular(req, res) {
-  const motivo = req.body?.motivo?.trim();
+  const motivo = texto(req.body?.motivo, MAX.motivo, 'Motivo');
   if (!motivo) throw new HttpError(400, 'Indique el motivo de la anulación');
 
   const stocks = await withTransaction(async (conn) => {

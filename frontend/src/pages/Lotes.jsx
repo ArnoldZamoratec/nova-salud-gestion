@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, errMsg, hoyISO, soloFecha } from '../api';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Alert, Empty, Field, Modal } from '../components/ui.jsx';
+import { MAX } from '../limites.js';
 
 const ESTADOS = {
   vigente: ['Vigente', 'tag-green'],
@@ -69,7 +70,7 @@ export default function Lotes() {
       </div>
 
       <div className="filters card">
-        <input placeholder="Buscar por código de lote o producto" value={filtros.q} onChange={filtro('q')} />
+        <input maxLength={MAX.busqueda} placeholder="Buscar por código de lote o producto" value={filtros.q} onChange={filtro('q')} />
         <select value={filtros.producto_id} onChange={filtro('producto_id')}>
           <option value="">Todos los productos</option>
           {productos.map((p) => <option key={p.id} value={p.id}>{p.nombre}</option>)}
@@ -132,13 +133,13 @@ export default function Lotes() {
                 {productos.map((p) => <option key={p.id} value={p.id}>{p.nombre} {p.presentacion && `· ${p.presentacion}`}</option>)}
               </select>
             </Field>
-            <Field label="Código de lote *"><input required maxLength={50} value={nuevo.codigo_lote} onChange={setN('codigo_lote')} placeholder="Como figura en la caja" /></Field>
+            <Field label="Código de lote *"><input required maxLength={MAX.codigoLote} value={nuevo.codigo_lote} onChange={setN('codigo_lote')} placeholder="Como figura en la caja" /></Field>
             <div className="grid-2">
               <Field label="Fabricación *"><input type="date" required max={hoyISO()} value={nuevo.fecha_fabricacion} onChange={setN('fecha_fabricacion')} /></Field>
               <Field label="Caducidad *"><input type="date" required min={nuevo.fecha_fabricacion || undefined} value={nuevo.fecha_caducidad} onChange={setN('fecha_caducidad')} /></Field>
             </div>
             <Field label="Cantidad inicial *" hint="Se suma al stock del producto"><input type="number" min="1" required value={nuevo.cantidad} onChange={setN('cantidad')} /></Field>
-            <Field label="Referencia (guía / factura)"><input value={nuevo.motivo} onChange={setN('motivo')} /></Field>
+            <Field label="Referencia (guía / factura)"><input maxLength={MAX.motivo} value={nuevo.motivo} onChange={setN('motivo')} /></Field>
             <button className="btn btn-primary btn-block" disabled={guardando}>{guardando ? 'Guardando…' : 'Registrar lote'}</button>
           </form>
         </Modal>
@@ -149,7 +150,7 @@ export default function Lotes() {
           <form onSubmit={guardarBaja} className="form">
             <Alert>{formError}</Alert>
             <p>Se retirarán <strong>{baja.cantidad_actual}</strong> unidades de {baja.producto} del inventario. Quedará registrado en el kardex.</p>
-            <Field label="Motivo *"><input required autoFocus value={baja.motivo} onChange={(e) => setBaja({ ...baja, motivo: e.target.value })} placeholder="Vencido, dañado, retiro sanitario…" /></Field>
+            <Field label="Motivo *"><input required autoFocus maxLength={MAX.motivo} value={baja.motivo} onChange={(e) => setBaja({ ...baja, motivo: e.target.value })} placeholder="Vencido, dañado, retiro sanitario…" /></Field>
             <div className="row-actions">
               <button type="button" className="btn" onClick={() => setBaja(null)}>Cancelar</button>
               <button className="btn btn-primary" disabled={guardando}>{guardando ? 'Procesando…' : 'Dar de baja'}</button>

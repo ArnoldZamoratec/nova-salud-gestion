@@ -3,6 +3,7 @@ import { api, errMsg, fecha, hoyISO, soles } from '../api';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Alert, Empty, Modal } from '../components/ui.jsx';
 import Comprobante from '../components/Comprobante.jsx';
+import { MAX } from '../limites.js';
 
 const METODO = { efectivo: 'Efectivo', tarjeta: 'Tarjeta', yape_plin: 'Yape / Plin' };
 
@@ -30,8 +31,9 @@ export default function Ventas() {
   };
 
   const anular = async () => {
-    const motivo = window.prompt(`Motivo de anulación de ${detalle.numero}:`);
+    const motivo = window.prompt(`Motivo de anulación de ${detalle.numero} (máx. ${MAX.motivo} caracteres):`)?.trim();
     if (!motivo) return;
+    if (motivo.length > MAX.motivo) return setError(`El motivo admite como máximo ${MAX.motivo} caracteres`);
     try {
       await api.post(`/ventas/${detalle.id}/anular`, { motivo });
       await ver(detalle.id);
@@ -55,7 +57,7 @@ export default function Ventas() {
       <div className="filters card">
         <label className="inline">Desde <input type="date" value={filtros.desde} onChange={(e) => setFiltros({ ...filtros, desde: e.target.value })} /></label>
         <label className="inline">Hasta <input type="date" value={filtros.hasta} onChange={(e) => setFiltros({ ...filtros, hasta: e.target.value })} /></label>
-        <input placeholder="N° boleta, cliente o DNI" value={filtros.q} onChange={(e) => setFiltros({ ...filtros, q: e.target.value })} />
+        <input maxLength={MAX.busqueda} placeholder="N° boleta, cliente o DNI" value={filtros.q} onChange={(e) => setFiltros({ ...filtros, q: e.target.value })} />
         <select value={filtros.estado} onChange={(e) => setFiltros({ ...filtros, estado: e.target.value })}>
           <option value="">Todas</option>
           <option value="completada">Completadas</option>

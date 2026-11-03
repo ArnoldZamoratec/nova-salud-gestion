@@ -17,6 +17,9 @@ export function errorHandler(err, req, res, next) {
         : 'Ya existe un registro con ese valor único (DNI, email o RUC).',
     });
   }
+  if (err.code === 'ER_DATA_TOO_LONG') {
+    return res.status(400).json({ message: 'Uno de los campos supera el máximo de caracteres permitido.' });
+  }
   if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ message: 'La imagen no debe pesar más de 2 MB' });
   if (err.name === 'MulterError') return res.status(400).json({ message: 'Archivo inválido' });
   if (err.code === 'ER_ROW_IS_REFERENCED_2') {

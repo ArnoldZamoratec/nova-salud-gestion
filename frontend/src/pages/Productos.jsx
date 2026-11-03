@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, errMsg, hoyISO, soles, soloFecha } from '../api';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Alert, Empty, Field, Modal, ProductoImg, StockBadge, VencBadge } from '../components/ui.jsx';
+import { MAX } from '../limites.js';
 
 const VACIO = {
   nombre: '', descripcion: '', laboratorio: '', presentacion: '', categoria_id: '',
@@ -100,8 +101,9 @@ export default function Productos() {
   };
 
   const nuevaCategoria = async () => {
-    const nombre = window.prompt('Nombre de la nueva categoría');
+    const nombre = window.prompt(`Nombre de la nueva categoría (máx. ${MAX.categoria} caracteres)`)?.trim();
     if (!nombre) return;
+    if (nombre.length > MAX.categoria) return setFormError(`El nombre de la categoría admite como máximo ${MAX.categoria} caracteres`);
     try {
       const { data } = await api.post('/categorias', { nombre });
       setCategorias((c) => [...c, data].sort((a, b) => a.nombre.localeCompare(b.nombre)));
@@ -124,7 +126,7 @@ export default function Productos() {
       </div>
 
       <div className="filters card">
-        <input placeholder="Buscar por nombre, presentación o laboratorio" value={filtros.q} onChange={(e) => setFiltros({ ...filtros, q: e.target.value })} />
+        <input maxLength={MAX.busqueda} placeholder="Buscar por nombre, presentación o laboratorio" value={filtros.q} onChange={(e) => setFiltros({ ...filtros, q: e.target.value })} />
         <select value={filtros.categoria} onChange={(e) => setFiltros({ ...filtros, categoria: e.target.value })}>
           <option value="">Todas las categorías</option>
           {categorias.map((c) => <option key={c.id} value={c.id}>{c.nombre}</option>)}
@@ -194,9 +196,9 @@ export default function Productos() {
                 </div>
               </div>
             </div>
-            <Field label="Nombre *"><input required value={form.nombre} onChange={set('nombre')} autoFocus /></Field>
-            <Field label="Laboratorio"><input value={form.laboratorio || ''} onChange={set('laboratorio')} /></Field>
-            <Field label="Presentación"><input value={form.presentacion || ''} onChange={set('presentacion')} placeholder="Caja x 100 tab" /></Field>
+            <Field label="Nombre *"><input required maxLength={MAX.productoNombre} value={form.nombre} onChange={set('nombre')} autoFocus /></Field>
+            <Field label="Laboratorio"><input maxLength={MAX.laboratorio} value={form.laboratorio || ''} onChange={set('laboratorio')} /></Field>
+            <Field label="Presentación"><input maxLength={MAX.presentacion} value={form.presentacion || ''} onChange={set('presentacion')} placeholder="Caja x 100 tab" /></Field>
             <Field label="Categoría">
               <div className="input-group">
                 <select value={form.categoria_id} onChange={set('categoria_id')}>
@@ -211,7 +213,7 @@ export default function Productos() {
             <Field label="Stock mínimo (alerta)" hint="Se alertará al llegar a este nivel"><input type="number" min="0" value={form.stock_minimo} onChange={set('stock_minimo')} /></Field>
             <Field label="Fecha de vencimiento" hint="Con lotes registrados se actualiza sola: próxima caducidad"><input type="date" value={form.fecha_vencimiento} onChange={set('fecha_vencimiento')} /></Field>
             <label className="check"><input type="checkbox" checked={form.requiere_receta} onChange={set('requiere_receta')} /> Requiere receta médica</label>
-            <Field label="Descripción"><textarea rows={2} value={form.descripcion || ''} onChange={set('descripcion')} /></Field>
+            <Field label="Descripción"><textarea rows={2} maxLength={MAX.descripcion} value={form.descripcion || ''} onChange={set('descripcion')} /></Field>
             <div className="row-actions full">
               <button type="button" className="btn" onClick={() => setForm(null)}>Cancelar</button>
               <button className="btn btn-primary" disabled={guardando}>{guardando ? 'Guardando…' : 'Guardar'}</button>
@@ -231,7 +233,7 @@ export default function Productos() {
             </div>
             {stockForm.tipo === 'entrada' && (
               <>
-                <Field label="Código de lote *"><input required maxLength={50} value={stockForm.codigo_lote} onChange={(e) => setStockForm({ ...stockForm, codigo_lote: e.target.value })} placeholder="Como figura en la caja" /></Field>
+                <Field label="Código de lote *"><input required maxLength={MAX.codigoLote} value={stockForm.codigo_lote} onChange={(e) => setStockForm({ ...stockForm, codigo_lote: e.target.value })} placeholder="Como figura en la caja" /></Field>
                 <div className="grid-2">
                   <Field label="Fabricación *"><input type="date" required max={hoyISO()} value={stockForm.fecha_fabricacion} onChange={(e) => setStockForm({ ...stockForm, fecha_fabricacion: e.target.value })} /></Field>
                   <Field label="Caducidad *"><input type="date" required min={stockForm.fecha_fabricacion || undefined} value={stockForm.fecha_caducidad} onChange={(e) => setStockForm({ ...stockForm, fecha_caducidad: e.target.value })} /></Field>
@@ -243,7 +245,7 @@ export default function Productos() {
               <input type="number" min={stockForm.tipo === 'entrada' ? 1 : 0} required autoFocus value={stockForm.cantidad} onChange={(e) => setStockForm({ ...stockForm, cantidad: e.target.value })} />
             </Field>
             <Field label={stockForm.tipo === 'entrada' ? 'Referencia (guía / factura)' : 'Motivo del ajuste *'}>
-              <input required={stockForm.tipo === 'ajuste'} value={stockForm.motivo} onChange={(e) => setStockForm({ ...stockForm, motivo: e.target.value })} />
+              <input required={stockForm.tipo === 'ajuste'} maxLength={MAX.motivo} value={stockForm.motivo} onChange={(e) => setStockForm({ ...stockForm, motivo: e.target.value })} />
             </Field>
             <button className="btn btn-primary btn-block">Registrar</button>
           </form>

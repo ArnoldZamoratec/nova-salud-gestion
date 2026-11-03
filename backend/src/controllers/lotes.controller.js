@@ -3,6 +3,7 @@ import { pool, withTransaction } from '../config/db.js';
 import { HttpError } from '../middleware/errorHandler.js';
 import { emitirCambioStock } from '../socket.js';
 import { sincronizarVencimiento } from '../lotes.js';
+import { MAX, texto } from '../validar.js';
 
 const diasAlerta = () => Number(process.env.DIAS_ALERTA_VENCIMIENTO) || 60;
 
@@ -33,7 +34,7 @@ export async function listar(req, res) {
 
 /** Retira del inventario todas las unidades que quedan en un lote. */
 export async function baja(req, res) {
-  const motivo = req.body?.motivo?.trim();
+  const motivo = texto(req.body?.motivo, MAX.motivo, 'Motivo');
   if (!motivo) throw new HttpError(400, 'Indique el motivo de la baja');
   const result = await withTransaction(async (conn) => {
     const [[l]] = await conn.query('SELECT * FROM lote WHERE id_lote = ? FOR UPDATE', [req.params.id]);

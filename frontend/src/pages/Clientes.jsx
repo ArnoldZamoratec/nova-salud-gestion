@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, errMsg, fecha, soles } from '../api';
 import { Alert, Empty, Field, Modal } from '../components/ui.jsx';
+import { MAX } from '../limites.js';
 
 export default function Clientes() {
   const [q, setQ] = useState('');
@@ -47,7 +48,7 @@ export default function Clientes() {
         <button className="btn btn-primary" onClick={() => { setFormError(''); setForm({ dni: '', nombre: '', telefono: '', email: '' }); }}>+ Nuevo cliente</button>
       </div>
       <div className="filters card">
-        <input placeholder="Buscar por DNI o nombre" value={q} onChange={(e) => setQ(e.target.value)} />
+        <input maxLength={MAX.busqueda} placeholder="Buscar por DNI o nombre" value={q} onChange={(e) => setQ(e.target.value)} />
       </div>
       <Alert>{error}</Alert>
       <div className="card table-wrap">
@@ -78,9 +79,9 @@ export default function Clientes() {
           <form className="form" onSubmit={guardar}>
             <Alert>{formError}</Alert>
             <Field label="DNI (8) o RUC (11) *"><input required autoFocus maxLength={11} value={form.dni} onChange={(e) => setForm({ ...form, dni: e.target.value.replace(/\D/g, '') })} /></Field>
-            <Field label="Nombre completo *"><input required value={form.nombre} onChange={set('nombre')} /></Field>
-            <Field label="Teléfono"><input value={form.telefono} onChange={set('telefono')} /></Field>
-            <Field label="Email"><input type="email" value={form.email} onChange={set('email')} /></Field>
+            <Field label="Nombre completo *"><input required maxLength={MAX.clienteNombre} value={form.nombre} onChange={set('nombre')} /></Field>
+            <Field label="Teléfono"><input type="tel" maxLength={MAX.telefono} value={form.telefono} onChange={set('telefono')} /></Field>
+            <Field label="Email"><input type="email" maxLength={MAX.email} value={form.email} onChange={set('email')} /></Field>
             <button className="btn btn-primary btn-block">Guardar</button>
           </form>
         </Modal>

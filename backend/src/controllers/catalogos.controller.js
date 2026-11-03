@@ -1,6 +1,7 @@
 // Categorías y clientes
 import { pool } from '../config/db.js';
 import { HttpError } from '../middleware/errorHandler.js';
+import { MAX, texto } from '../validar.js';
 
 // ---------- Categorías ----------
 export async function listarCategorias(req, res) {
@@ -13,7 +14,7 @@ export async function listarCategorias(req, res) {
 }
 
 export async function crearCategoria(req, res) {
-  const nombre = req.body?.nombre?.trim();
+  const nombre = texto(req.body?.nombre, MAX.categoria, 'Nombre de la categoría');
   if (!nombre) throw new HttpError(400, 'El nombre es obligatorio');
   const [r] = await pool.query('INSERT INTO categorias (nombre) VALUES (?)', [nombre]);
   res.status(201).json({ id: r.insertId, nombre });
@@ -46,8 +47,14 @@ export async function clientePorDni(req, res) {
 
 function datosCliente(b = {}) {
   if (!/^\d{8}$|^\d{11}$/.test(b.dni || '')) throw new HttpError(400, 'DNI (8 dígitos) o RUC (11 dígitos) inválido');
-  if (!b.nombre?.trim()) throw new HttpError(400, 'El nombre es obligatorio');
-  return { dni: b.dni, nombre: b.nombre.trim(), telefono: b.telefono || null, email: b.email || null };
+  const nombre = texto(b.nombre, MAX.clienteNombre, 'Nombre');
+  if (!nombre) throw new HttpError(400, 'El nombre es obligatorio');
+  return {
+    dni: b.dni,
+    nombre,
+    telefono: texto(b.telefono, MAX.telefono, 'Teléfono') || null,
+    email: texto(b.email, MAX.email, 'Email') || null,
+  };
 }
 
 export async function crearCliente(req, res) {

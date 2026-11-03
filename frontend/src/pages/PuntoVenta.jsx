@@ -3,6 +3,7 @@ import { api, errMsg, soles } from '../api';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Alert, Modal, ProductoImg, StockBadge, VencBadge } from '../components/ui.jsx';
 import Comprobante from '../components/Comprobante.jsx';
+import { MAX } from '../limites.js';
 
 const METODOS = [
   { id: 'efectivo', label: 'Efectivo' },
@@ -159,6 +160,7 @@ export default function PuntoVenta() {
           <input
             ref={searchRef}
             autoFocus
+            maxLength={MAX.busqueda}
             placeholder="Escriba el nombre del producto  (F2)"
             value={q}
             onChange={(e) => setQ(e.target.value)}
@@ -264,10 +266,10 @@ export default function PuntoVenta() {
           <form onSubmit={guardarCliente} className="form">
             <p className="muted">El documento {nuevoCliente.dni} no está registrado.</p>
             <label className="field"><span>Nombre completo</span>
-              <input autoFocus required value={nuevoCliente.nombre} onChange={(e) => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })} />
+              <input autoFocus required maxLength={MAX.clienteNombre} value={nuevoCliente.nombre} onChange={(e) => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })} />
             </label>
             <label className="field"><span>Teléfono</span>
-              <input value={nuevoCliente.telefono} onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })} />
+              <input type="tel" maxLength={MAX.telefono} value={nuevoCliente.telefono} onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })} />
             </label>
             <button className="btn btn-primary btn-block">Guardar y usar</button>
           </form>

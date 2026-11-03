@@ -2,6 +2,7 @@ import { pool, withTransaction } from '../config/db.js';
 import { HttpError } from '../middleware/errorHandler.js';
 import { emitirCambioStock } from '../socket.js';
 import { borrarImagen, rutaPublica } from '../middleware/upload.js';
+import { MAX, texto, motivoKardex } from '../validar.js';
 import { validarLote, crearLote, descontarLotes, devolverLotes, sincronizarVencimiento, textoLotes } from '../lotes.js';
 
 const SELECT_PRODUCTO = `
@@ -50,14 +51,15 @@ export async function obtener(req, res) {
 
 function validar(body) {
   const { nombre, precio_venta, precio_compra = 0, stock_minimo = 0 } = body;
-  if (!nombre?.trim()) throw new HttpError(400, 'El nombre es obligatorio');
+  const nom = texto(nombre, MAX.productoNombre, 'Nombre');
+  if (!nom) throw new HttpError(400, 'El nombre es obligatorio');
   if (!(Number(precio_venta) > 0)) throw new HttpError(400, 'El precio de venta debe ser mayor a 0');
   if (Number(precio_compra) < 0 || Number(stock_minimo) < 0) throw new HttpError(400, 'Valores numéricos inválidos');
   return {
-    nombre: nombre.trim(),
-    descripcion: body.descripcion || null,
-    laboratorio: body.laboratorio || null,
-    presentacion: body.presentacion?.trim() || '', // '' (no NULL) para que el UNIQUE nombre+presentación funcione
+    nombre: nom,
+    descripcion: texto(body.descripcion, MAX.descripcion, 'Descripción') || null,
+    laboratorio: texto(body.laboratorio, MAX.laboratorio, 'Laboratorio') || null,
+    presentacion: texto(body.presentacion, MAX.presentacion, 'Presentación'), // '' (no NULL) para que el UNIQUE nombre+presentación funcione
     categoria_id: body.categoria_id || null,
     precio_compra: Number(precio_compra),
     precio_venta: Number(precio_venta),
@@ -125,6 +127,7 @@ export async function movimientoStock(req, res) {
   if (!Number.isInteger(cant) || (tipo === 'entrada' && cant <= 0) || (tipo === 'ajuste' && cant < 0)) {
     throw new HttpError(400, 'Cantidad inválida');
   }
+  texto(motivo, MAX.motivo, 'Motivo');
   if (tipo === 'ajuste' && !motivo?.trim()) throw new HttpError(400, 'Indique el motivo del ajuste');
   const lote = tipo === 'entrada' ? validarLote(req.body) : null;
 
@@ -148,7 +151,7 @@ export async function movimientoStock(req, res) {
     await conn.query(
       `INSERT INTO movimientos_inventario (producto_id, tipo, cantidad, stock_anterior, stock_nuevo, motivo, usuario_id)
        VALUES (?,?,?,?,?,?,?)`,
-      [p.id, tipo, Math.abs(nuevo - p.stock), p.stock, nuevo, detalle, req.user.id],
+      [p.id, tipo, Math.abs(nuevo - p.stock), p.stock, nuevo, motivoKardex(detalle), req.user.id],
     );
     return { id: p.id, stock: nuevo };
   });

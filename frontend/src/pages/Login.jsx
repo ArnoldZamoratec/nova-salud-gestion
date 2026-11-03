@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { errMsg } from '../api';
 import { Alert, Marca } from '../components/ui.jsx';
+import { MAX } from '../limites.js';
 
 export default function Login() {
   const { login } = useAuth();
@@ -36,11 +37,11 @@ export default function Login() {
         <Alert>{error}</Alert>
         <label className="field">
           <span>Correo</span>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus required autoComplete="username" />
+          <input type="email" maxLength={MAX.email} value={email} onChange={(e) => setEmail(e.target.value)} autoFocus required autoComplete="username" />
         </label>
         <label className="field">
           <span>Contraseña</span>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
+          <input type="password" maxLength={MAX.password} value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" />
         </label>
         <button className="btn btn-primary btn-block" disabled={loading}>{loading ? 'Ingresando…' : 'Ingresar'}</button>
         <a href="/" className="link small center">Ir al catálogo</a>
