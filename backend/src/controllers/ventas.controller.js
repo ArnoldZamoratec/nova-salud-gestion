@@ -1,7 +1,7 @@
 import { pool, withTransaction } from '../config/db.js';
 import { HttpError } from '../middleware/errorHandler.js';
 import { emitirCambioStock } from '../socket.js';
-import { MAX, texto } from '../validar.js';
+import { MAX, NUM, texto } from '../validar.js';
 import { unidadesVencidas, descontarLotes, devolverLotes, sincronizarVencimiento, textoLotes } from '../lotes.js';
 
 const IGV = 0.18;
@@ -23,6 +23,7 @@ export async function registrar(req, res) {
     const id = Number(it.producto_id);
     const cant = parseInt(it.cantidad, 10);
     if (!id || !Number.isInteger(cant) || cant <= 0) throw new HttpError(400, 'Ítem de venta inválido');
+    if (cant > NUM.cantidad) throw new HttpError(400, `La cantidad no puede superar ${NUM.cantidad}`);
     cantidades.set(id, (cantidades.get(id) || 0) + cant);
   }
   const ids = [...cantidades.keys()].sort((a, b) => a - b); // orden fijo → evita deadlocks
@@ -59,6 +60,7 @@ export async function registrar(req, res) {
     if (metodo_pago === 'efectivo') {
       recibido = monto_recibido == null || monto_recibido === '' ? total : Number(monto_recibido);
       if (!(recibido >= total)) throw new HttpError(400, 'El monto recibido es menor al total');
+      if (recibido > NUM.montoRecibido) throw new HttpError(400, `El monto recibido no puede superar S/ ${NUM.montoRecibido}`);
       vuelto = redondear(recibido - total);
     }
 

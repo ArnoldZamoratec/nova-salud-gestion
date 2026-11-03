@@ -49,6 +49,7 @@ function datosCliente(b = {}) {
   if (!/^\d{8}$|^\d{11}$/.test(b.dni || '')) throw new HttpError(400, 'DNI (8 dígitos) o RUC (11 dígitos) inválido');
   const nombre = texto(b.nombre, MAX.clienteNombre, 'Nombre');
   if (!nombre) throw new HttpError(400, 'El nombre es obligatorio');
+  if (b.telefono && !/^\d+$/.test(String(b.telefono).trim())) throw new HttpError(400, 'El teléfono solo admite números');
   return {
     dni: b.dni,
     nombre,

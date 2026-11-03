@@ -3,7 +3,7 @@ import { api, errMsg, soles } from '../api';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Alert, Modal, ProductoImg, StockBadge, VencBadge } from '../components/ui.jsx';
 import Comprobante from '../components/Comprobante.jsx';
-import { MAX } from '../limites.js';
+import { MAX, NUM, numero, digitos } from '../limites.js';
 
 const METODOS = [
   { id: 'efectivo', label: 'Efectivo' },
@@ -210,7 +210,7 @@ export default function PuntoVenta() {
               </div>
               <div className="qty">
                 <button onClick={() => setCantidad(i.id, i.cantidad - 1)}>−</button>
-                <input value={i.cantidad} onChange={(e) => setCantidad(i.id, e.target.value)} />
+                <input inputMode="numeric" maxLength={5} value={i.cantidad} onChange={(e) => setCantidad(i.id, digitos(e.target.value, 5))} />
                 <button onClick={() => setCantidad(i.id, i.cantidad + 1)}>+</button>
               </div>
               <strong className="cart-sub">{soles(i.precio * i.cantidad)}</strong>
@@ -242,7 +242,7 @@ export default function PuntoVenta() {
 
         {metodo === 'efectivo' && total > 0 && (
           <div className="efectivo">
-            <input type="number" min="0" step="0.1" placeholder={`Monto recibido (${soles(total)})`} value={recibido} onChange={(e) => setRecibido(e.target.value)} />
+            <input type="number" min="0" max={NUM.montoRecibido} step="0.1" placeholder={`Monto recibido (${soles(total)})`} value={recibido} onChange={(e) => setRecibido(numero(e.target.value, 5, 2))} />
             <div className="sugerencias">
               {sugerencias.map((v) => <button key={v} className="key num" onClick={() => setRecibido(String(v))}>S/ {v}</button>)}
             </div>
@@ -269,7 +269,7 @@ export default function PuntoVenta() {
               <input autoFocus required maxLength={MAX.clienteNombre} value={nuevoCliente.nombre} onChange={(e) => setNuevoCliente({ ...nuevoCliente, nombre: e.target.value })} />
             </label>
             <label className="field"><span>Teléfono</span>
-              <input type="tel" maxLength={MAX.telefono} value={nuevoCliente.telefono} onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: e.target.value })} />
+              <input type="tel" maxLength={MAX.telefono} value={nuevoCliente.telefono} onChange={(e) => setNuevoCliente({ ...nuevoCliente, telefono: digitos(e.target.value, MAX.telefono) })} />
             </label>
             <button className="btn btn-primary btn-block">Guardar y usar</button>
           </form>

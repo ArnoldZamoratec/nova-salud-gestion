@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, errMsg, hoyISO, soles, soloFecha } from '../api';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Alert, Empty, Field, Modal, ProductoImg, StockBadge, VencBadge } from '../components/ui.jsx';
-import { MAX } from '../limites.js';
+import { MAX, NUM, numero, digitos } from '../limites.js';
 
 const VACIO = {
   nombre: '', descripcion: '', laboratorio: '', presentacion: '', categoria_id: '',
@@ -208,9 +208,9 @@ export default function Productos() {
                 <button type="button" className="btn btn-sm" onClick={nuevaCategoria}>+</button>
               </div>
             </Field>
-            <Field label="Precio de compra (S/)"><input type="number" step="0.01" min="0" value={form.precio_compra} onChange={set('precio_compra')} /></Field>
-            <Field label="Precio de venta (S/) *"><input type="number" step="0.01" min="0.01" required value={form.precio_venta} onChange={set('precio_venta')} /></Field>
-            <Field label="Stock mínimo (alerta)" hint="Se alertará al llegar a este nivel"><input type="number" min="0" value={form.stock_minimo} onChange={set('stock_minimo')} /></Field>
+            <Field label="Precio de compra (S/)"><input type="number" step="0.01" min="0" max={NUM.precio} value={form.precio_compra} onChange={(e) => setForm({ ...form, precio_compra: numero(e.target.value, 5, 2) })} /></Field>
+            <Field label="Precio de venta (S/) *"><input type="number" step="0.01" min="0.01" max={NUM.precio} required value={form.precio_venta} onChange={(e) => setForm({ ...form, precio_venta: numero(e.target.value, 5, 2) })} /></Field>
+            <Field label="Stock mínimo (alerta)" hint="Se alertará al llegar a este nivel"><input type="number" min="0" max={NUM.stockMinimo} value={form.stock_minimo} onChange={(e) => setForm({ ...form, stock_minimo: numero(e.target.value, 4) })} /></Field>
             <Field label="Fecha de vencimiento" hint="Con lotes registrados se actualiza sola: próxima caducidad"><input type="date" value={form.fecha_vencimiento} onChange={set('fecha_vencimiento')} /></Field>
             <label className="check"><input type="checkbox" checked={form.requiere_receta} onChange={set('requiere_receta')} /> Requiere receta médica</label>
             <Field label="Descripción"><textarea rows={2} maxLength={MAX.descripcion} value={form.descripcion || ''} onChange={set('descripcion')} /></Field>
@@ -242,7 +242,7 @@ export default function Productos() {
             )}
             {stockForm.tipo === 'ajuste' && <p className="muted small">Si el conteo es menor, se descuenta de los lotes que vencen primero.</p>}
             <Field label={stockForm.tipo === 'entrada' ? 'Cantidad que ingresa *' : 'Stock real contado'}>
-              <input type="number" min={stockForm.tipo === 'entrada' ? 1 : 0} required autoFocus value={stockForm.cantidad} onChange={(e) => setStockForm({ ...stockForm, cantidad: e.target.value })} />
+              <input type="number" min={stockForm.tipo === 'entrada' ? 1 : 0} max={NUM.cantidad} required autoFocus value={stockForm.cantidad} onChange={(e) => setStockForm({ ...stockForm, cantidad: numero(e.target.value, 5) })} />
             </Field>
             <Field label={stockForm.tipo === 'entrada' ? 'Referencia (guía / factura)' : 'Motivo del ajuste *'}>
               <input required={stockForm.tipo === 'ajuste'} maxLength={MAX.motivo} value={stockForm.motivo} onChange={(e) => setStockForm({ ...stockForm, motivo: e.target.value })} />

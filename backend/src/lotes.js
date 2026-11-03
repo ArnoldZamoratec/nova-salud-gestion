@@ -1,6 +1,7 @@
 // Lógica de lotes compartida por inventario y ventas.
 // Regla FEFO (First Expired, First Out): siempre se despacha primero el lote vigente que vence antes.
 import { HttpError } from './middleware/errorHandler.js';
+import { MAX } from './validar.js';
 
 const FECHA = /^\d{4}-\d{2}-\d{2}$/;
 
@@ -8,7 +9,7 @@ const FECHA = /^\d{4}-\d{2}-\d{2}$/;
 export function validarLote(b = {}) {
   const codigo = String(b.codigo_lote || '').trim();
   if (!codigo) throw new HttpError(400, 'Indique el código del lote');
-  if (codigo.length > 50) throw new HttpError(400, 'El código del lote es demasiado largo');
+  if (codigo.length > MAX.codigoLote) throw new HttpError(400, `Código de lote: máximo ${MAX.codigoLote} caracteres`);
   if (!FECHA.test(b.fecha_fabricacion || '')) throw new HttpError(400, 'Indique la fecha de fabricación');
   if (!FECHA.test(b.fecha_caducidad || '')) throw new HttpError(400, 'Indique la fecha de caducidad');
   if (b.fecha_caducidad <= b.fecha_fabricacion) throw new HttpError(400, 'La caducidad debe ser posterior a la fabricación');

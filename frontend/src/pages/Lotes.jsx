@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api, errMsg, hoyISO, soloFecha } from '../api';
 import { useAuth } from '../context/AuthContext.jsx';
 import { Alert, Empty, Field, Modal } from '../components/ui.jsx';
-import { MAX } from '../limites.js';
+import { MAX, NUM, numero, digitos } from '../limites.js';
 
 const ESTADOS = {
   vigente: ['Vigente', 'tag-green'],
@@ -138,7 +138,7 @@ export default function Lotes() {
               <Field label="Fabricación *"><input type="date" required max={hoyISO()} value={nuevo.fecha_fabricacion} onChange={setN('fecha_fabricacion')} /></Field>
               <Field label="Caducidad *"><input type="date" required min={nuevo.fecha_fabricacion || undefined} value={nuevo.fecha_caducidad} onChange={setN('fecha_caducidad')} /></Field>
             </div>
-            <Field label="Cantidad inicial *" hint="Se suma al stock del producto"><input type="number" min="1" required value={nuevo.cantidad} onChange={setN('cantidad')} /></Field>
+            <Field label="Cantidad inicial *" hint="Se suma al stock del producto"><input type="number" min="1" max={NUM.cantidad} required value={nuevo.cantidad} onChange={(e) => setNuevo({ ...nuevo, cantidad: numero(e.target.value, 5) })} /></Field>
             <Field label="Referencia (guía / factura)"><input maxLength={MAX.motivo} value={nuevo.motivo} onChange={setN('motivo')} /></Field>
             <button className="btn btn-primary btn-block" disabled={guardando}>{guardando ? 'Guardando…' : 'Registrar lote'}</button>
           </form>

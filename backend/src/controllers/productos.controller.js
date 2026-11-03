@@ -2,7 +2,7 @@ import { pool, withTransaction } from '../config/db.js';
 import { HttpError } from '../middleware/errorHandler.js';
 import { emitirCambioStock } from '../socket.js';
 import { borrarImagen, rutaPublica } from '../middleware/upload.js';
-import { MAX, texto, motivoKardex } from '../validar.js';
+import { MAX, NUM, texto, motivoKardex } from '../validar.js';
 import { validarLote, crearLote, descontarLotes, devolverLotes, sincronizarVencimiento, textoLotes } from '../lotes.js';
 
 const SELECT_PRODUCTO = `
@@ -55,6 +55,8 @@ function validar(body) {
   if (!nom) throw new HttpError(400, 'El nombre es obligatorio');
   if (!(Number(precio_venta) > 0)) throw new HttpError(400, 'El precio de venta debe ser mayor a 0');
   if (Number(precio_compra) < 0 || Number(stock_minimo) < 0) throw new HttpError(400, 'Valores numéricos inválidos');
+  if (Number(precio_venta) > NUM.precio || Number(precio_compra) > NUM.precio) throw new HttpError(400, `El precio no puede superar S/ ${NUM.precio}`);
+  if (Number(stock_minimo) > NUM.stockMinimo) throw new HttpError(400, `El stock mínimo no puede superar ${NUM.stockMinimo}`);
   return {
     nombre: nom,
     descripcion: texto(body.descripcion, MAX.descripcion, 'Descripción') || null,
@@ -128,6 +130,7 @@ export async function movimientoStock(req, res) {
     throw new HttpError(400, 'Cantidad inválida');
   }
   texto(motivo, MAX.motivo, 'Motivo');
+  if (cant > NUM.cantidad) throw new HttpError(400, `La cantidad no puede superar ${NUM.cantidad}`);
   if (tipo === 'ajuste' && !motivo?.trim()) throw new HttpError(400, 'Indique el motivo del ajuste');
   const lote = tipo === 'entrada' ? validarLote(req.body) : null;
 

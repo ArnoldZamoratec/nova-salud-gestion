@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { api, errMsg, fecha, soles } from '../api';
 import { Alert, Empty, Field, Modal } from '../components/ui.jsx';
-import { MAX } from '../limites.js';
+import { MAX, NUM, numero, digitos } from '../limites.js';
 
 export default function Clientes() {
   const [q, setQ] = useState('');
@@ -80,7 +80,7 @@ export default function Clientes() {
             <Alert>{formError}</Alert>
             <Field label="DNI (8) o RUC (11) *"><input required autoFocus maxLength={11} value={form.dni} onChange={(e) => setForm({ ...form, dni: e.target.value.replace(/\D/g, '') })} /></Field>
             <Field label="Nombre completo *"><input required maxLength={MAX.clienteNombre} value={form.nombre} onChange={set('nombre')} /></Field>
-            <Field label="Teléfono"><input type="tel" maxLength={MAX.telefono} value={form.telefono} onChange={set('telefono')} /></Field>
+            <Field label="Teléfono"><input type="tel" maxLength={MAX.telefono} value={form.telefono} onChange={(e) => setForm({ ...form, telefono: digitos(e.target.value, MAX.telefono) })} placeholder="9 dígitos" /></Field>
             <Field label="Email"><input type="email" maxLength={MAX.email} value={form.email} onChange={set('email')} /></Field>
             <button className="btn btn-primary btn-block">Guardar</button>
           </form>
