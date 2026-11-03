@@ -1,0 +1,12 @@
+{
+  "name": "nova-salud",
+  "private": true,
+  "scripts": {
+    "predev": "node scripts/install.js",
+    "dev": "node scripts/mysql.js && concurrently -k -n API,WEB -c blue,green \"npm run dev --prefix backend\" \"npm run dev --prefix frontend\"",
+    "start": "npm run dev"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0"
+  }
+}
